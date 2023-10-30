@@ -1,11 +1,18 @@
 package com.example.api.Controller;
 
 
+import com.example.api.Model.JwtTokenProvider;
+import com.example.api.Model.MyUserDetails;
+import com.example.api.Repository.BookRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,9 +28,9 @@ import java.util.List;
 public class BookController {
     @Autowired
     BookService bookService;
+
     @Autowired
     private HttpServletResponse response;
-
 
     @GetMapping("/books")
     public String listBook(Model model){
@@ -61,13 +68,12 @@ public class BookController {
             return "error.404";
         }
     }
-
-    @PutMapping("/edit-book")
-    public String updateBook(@ModelAttribute("book") Book book,Model model){
+    @PostMapping("/update-book/{id}")
+    public String updateBook(@PathVariable("id") @ModelAttribute Book book,Model model){
         bookService.save(book);
-        model.addAttribute("book", book);
-        model.addAttribute("message", "Book updated successfully"); 
-       return "list";
+        model.addAttribute("message", "Book updated successfully");
+        model.addAttribute("book",book);
+       return "edit";
     }
 
     @GetMapping("/delete-book/{id}")
@@ -89,13 +95,14 @@ public class BookController {
     @GetMapping("/logout")
     public String logout() {
         SecurityContextHolder.clearContext();
-        return "redirect:/login";
+        return "login";
     }
     @GetMapping("/login")
     public String login(Model model) {
-
         return "login";
     }
+
+
 
 //    @PostMapping("/login")
 //    public String login(@RequestParam String username, @RequestParam String password){
